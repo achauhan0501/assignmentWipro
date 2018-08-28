@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "/Users/abhinayvarma/AndroidStudioProjects/Task/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-sl/values-sl.xml",
+            "outputFile": "/home/ashish/task-wipro/Task/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-sl/values-sl.xml",
             "map": [
                 {
-                    "source": "/Users/abhinayvarma/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.1.1.aar/2061fb3b56070def3dbdcc90f8258377/res/values-sl/values-sl.xml",
+                    "source": "/home/ashish/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.1.1.aar/27c8b76425e0af753a564d7352be150d/res/values-sl/values-sl.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -14,7 +14,7 @@
                     }
                 },
                 {
-                    "source": "/Users/abhinayvarma/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/b9061c7727a96508abfd73c6681e41d4/res/values-sl/values-sl.xml",
+                    "source": "/home/ashish/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/ea84c7d472a7dca2f77d641ed2733e64/res/values-sl/values-sl.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
