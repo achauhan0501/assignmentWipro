@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Task</string>
+    <string name="no_internet_results">Please check internet connection!</string>
+    <string name="no_data">No data found.</string>
+</resources>
