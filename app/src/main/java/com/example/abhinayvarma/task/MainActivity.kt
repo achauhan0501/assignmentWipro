@@ -1,7 +1,7 @@
 package com.example.abhinayvarma.task
 
-import android.graphics.Color
 import android.os.Bundle
+import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Gravity
@@ -10,55 +10,55 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
 import com.example.abhinayvarma.task.adapter.ItemsAdapter
-import com.example.abhinayvarma.task.model.ResponseData
 import com.example.abhinayvarma.task.model.RowData
-import com.example.abhinayvarma.task.network.RestClient
+import com.example.abhinayvarma.task.presenter.GetDataContract
+import com.example.abhinayvarma.task.presenter.Presenter
 import kotlinx.android.synthetic.main.activity_main.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), GetDataContract.View {
 
-    var layoutManager: LinearLayoutManager ?= null
-    var list : ArrayList<RowData> = ArrayList()
-    var title : String = ""
+    var presenter: Presenter? = null
+
+    override fun onGetDataSuccess(message: String?, data: ArrayList<RowData>) {
+        list = data
+        initialise()
+        swipe_layout.isRefreshing = true
+    }
+
+    override fun onGetDataFailure(message: String?) {
+        Toast.makeText(this@MainActivity, getString(R.string.no_internet_results), Toast.LENGTH_LONG).show()
+    }
+
+    var layoutManager: LinearLayoutManager? = null
+    var list: ArrayList<RowData> = ArrayList()
+    var title: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        presenter = Presenter(this)
         layoutManager = LinearLayoutManager(this)
         list = ArrayList()
-        callApi()
-
-    }
 
 
-    fun callApi(){
-        RestClient.getClient().getData().enqueue(object : Callback<ResponseData> {
-            override fun onResponse(p0: Call<ResponseData>?, response: Response<ResponseData>) {
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    if (responseBody != null){
-                        list = responseBody.rows
-                        title = responseBody.title
-                        initialise()
-                    }else{
-                        Toast.makeText(this@MainActivity, getString(R.string.no_data), Toast.LENGTH_LONG).show()
 
-                    }
-
-                }
-            }
-
-            override fun onFailure(p0: Call<ResponseData>?, p1: Throwable?) {
-                Toast.makeText(this@MainActivity, getString(R.string.no_internet_results), Toast.LENGTH_LONG).show()
-
-            }
+        swipe_layout.setOnRefreshListener(SwipeRefreshLayout.OnRefreshListener {
+            initialise()
+            refresh()
+            swipe_layout.isRefreshing = false
         })
+
     }
 
-    fun initialise(){
+    fun refresh() {
+        list.clear()
+        initialise()
+
+    }
+
+
+
+    fun initialise() {
         rv.adapter = ItemsAdapter(this, list)
         rv.layoutManager = layoutManager
         val tv = TextView(applicationContext)
@@ -72,8 +72,8 @@ class MainActivity : AppCompatActivity() {
         tv.textSize = 20f
         tv.text = title
         top_view.addView(tv)
-    }
 
+    }
 
 
 }
