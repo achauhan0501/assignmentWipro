@@ -1,49 +1,67 @@
 package com.example.abhinayvarma.task
 
+import android.content.Context
+import android.graphics.Color
+import android.net.ConnectivityManager
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
 import com.example.abhinayvarma.task.adapter.ItemsAdapter
 import com.example.abhinayvarma.task.model.RowData
-import com.example.abhinayvarma.task.presenter.GetDataContract
-import com.example.abhinayvarma.task.presenter.Presenter
+import com.example.abhinayvarma.task.presenter.GetDataInterface
+import com.example.abhinayvarma.task.presenter.PresenterLogic
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity(), GetDataContract.View {
+class MainActivity : AppCompatActivity(), GetDataInterface.View {
 
-    var presenter: Presenter? = null
-
-    override fun onGetDataSuccess(message: String?, data: ArrayList<RowData>) {
-        list = data
-        initialise()
-        swipe_layout.isRefreshing = true
-    }
-
-    override fun onGetDataFailure(message: String?) {
-        Toast.makeText(this@MainActivity, getString(R.string.no_internet_results), Toast.LENGTH_LONG).show()
-    }
-
+    var presenter: PresenterLogic? = null
     var layoutManager: LinearLayoutManager? = null
     var list: ArrayList<RowData> = ArrayList()
     var title: String = ""
+    var snackbar: Snackbar? = null
+
+    override fun onGetDataSuccess(message: String, data: java.util.ArrayList<RowData>, heading: String) {
+        list = data
+        title = heading
+        initialise()
+        swipe_layout.isRefreshing = false
+    }
+
+    override fun onGetDataFailure(message: String) {
+        Toast.makeText(this@MainActivity, getString(R.string.no_internet_results), Toast.LENGTH_LONG).show()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // save your state here
+    }
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        presenter = Presenter(this)
+        presenter = PresenterLogic(this@MainActivity)
+        //Internet check
+        if (isNetworkAvailable(this))
+            presenter?.getDataFromURL(this@MainActivity)
+        else
+            showNoInternetSnackBar()
+
         layoutManager = LinearLayoutManager(this)
         list = ArrayList()
 
 
 
         swipe_layout.setOnRefreshListener(SwipeRefreshLayout.OnRefreshListener {
-            initialise()
             refresh()
             swipe_layout.isRefreshing = false
         })
@@ -53,7 +71,7 @@ class MainActivity : AppCompatActivity(), GetDataContract.View {
     fun refresh() {
         list.clear()
         initialise()
-
+        presenter?.getDataFromURL(this@MainActivity)
     }
 
 
@@ -74,6 +92,39 @@ class MainActivity : AppCompatActivity(), GetDataContract.View {
         top_view.addView(tv)
 
     }
+
+    /**
+     * Show No Internet Snackbar
+     */
+    fun showNoInternetSnackBar() {
+        snackbar = Snackbar.make(ll_parent, getString(R.string.no_internet_results), Snackbar.LENGTH_INDEFINITE)
+        snackbar?.setAction("RETRY", View.OnClickListener {
+            if (isNetworkAvailable(this)) {
+                snackbar?.dismiss()
+                presenter?.getDataFromURL(this@MainActivity)
+
+            } else {
+                showNoInternetSnackBar()
+            }
+        })
+        snackbar?.duration = Snackbar.LENGTH_INDEFINITE
+        snackbar?.setActionTextColor(Color.WHITE)
+        val sbView = snackbar?.view
+        val textView = sbView?.findViewById(android.support.design.R.id.snackbar_text) as TextView
+        snackbar?.show()
+    }
+    /*
+        *  Internet check
+        * */
+    fun isNetworkAvailable(context: Context): Boolean {
+        val conmanager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val info = conmanager.activeNetworkInfo
+        if (info != null && info.isAvailable) {
+            return info.isConnected
+        }
+        return false
+    }
+
 
 
 }
