@@ -8,7 +8,7 @@ apply plugin: 'kotlin-kapt'
 android {
     compileSdkVersion 27
     defaultConfig {
-        applicationId "com.example.abhinayvarma.task"
+        applicationId "com.example.ashish.task"
         minSdkVersion 15
         targetSdkVersion 27
         versionCode 1
